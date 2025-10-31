@@ -41,7 +41,7 @@
                 <div class="input-field"
                   [class.error]="signUpForm.controls['email']?.dirty && (signUpForm.controls['email']?.errors?.['required'] || signUpForm.controls['email']?.errors?.['email'])">
                   <span class="fa-solid fa-envelope p-3"></span>
-                  <input type="email" placeholder="Email" fornControlName="email">
+                  <input type="email" placeholder="Email" formControlName="email">
                 </div>
               </div>
               @if (signUpForm.controls['email']?.dirty || signUpForm.controls['email']?.touched) {
@@ -78,7 +78,7 @@
               <small class="text-danger">Minimum Length is 8 Characters.</small>
               }
               }
-              <button type="submit" class="btn btn-primary btn-block mt-4 w-100" (click)="onSubmit()">Sign Up</button>
+              <button type="submit" class="btn btn-primary btn-block mt-4 w-100" (click)="onSignup()">Sign Up</button>
               <div class="text-center pt-4 text-muted">
                 Already have an account?
                 <a id="forget" routerLink="/login">

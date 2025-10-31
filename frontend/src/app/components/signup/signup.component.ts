@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import validateForm from '../../helpers/validatorForm';
+import { AuthService } from '../../services/auth.service';
 
 
 @Component({
   selector: 'app-signup',
   imports: [
-    RouterLink,
     ReactiveFormsModule
   ],
   templateUrl: './signup.component.html',
@@ -20,7 +20,7 @@ export class SignupComponent implements OnInit {
 
   signUpForm!: FormGroup;
 
-  constructor(private fb: FormBuilder) { }
+  constructor(private router: Router, private fb: FormBuilder, private authService: AuthService) { }
   
   ngOnInit(): void {
     this.signUpForm = this.fb.group({
@@ -28,7 +28,7 @@ export class SignupComponent implements OnInit {
       lastname: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       username: ['', Validators.required],
-      password: ['', Validators.required, Validators.minLength(8)],
+      password: ['', [Validators.required, Validators.minLength(8)]],
     });
   }
 
@@ -43,9 +43,19 @@ export class SignupComponent implements OnInit {
     this.isPassword = !this.isPassword;
   }
 
-  onSubmit() {
+  onSignup() {
     if (this.signUpForm.valid) {
-      console.log(this.signUpForm.value);
+      // console.log(this.signUpForm.value);
+      this.authService.signUp(this.signUpForm.value).subscribe({
+        next: (response) => {
+          alert(response.message);
+          this.signUpForm.reset();
+          this.router.navigateByUrl('login');
+        },
+        error: (err) => {
+          alert(err?.error?.message);
+        }
+      });
     } else {
       validateForm.validateAllFormFields(this.signUpForm);
     }

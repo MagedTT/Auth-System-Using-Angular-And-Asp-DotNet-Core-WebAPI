@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from "@angular/router";
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from "@angular/router";
 import ValidateForm from '../../helpers/validatorForm';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +20,7 @@ export class LoginComponent implements OnInit {
   passwordInputType: string = 'password';
   loginForm!: FormGroup;
 
-  constructor(private fb: FormBuilder) { }
+  constructor(private router: Router, private fb: FormBuilder, private authService: AuthService) { }
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
@@ -39,9 +40,19 @@ export class LoginComponent implements OnInit {
     this.isPassword = !this.isPassword;
   }
 
-  onSubmit() {
+  onLogin() {
     if (this.loginForm.valid) {
-      console.log(this.loginForm.value);
+      // console.log(this.loginForm.value);
+      this.authService.login(this.loginForm.value).subscribe({
+        next: (response) => {
+          alert(response.message);
+          this.loginForm.reset();
+          this.router.navigateByUrl('dashboard');
+        },
+        error: (err) => {
+          alert(err?.error?.message);
+        }
+      });
     } else {
       ValidateForm.validateAllFormFields(this.loginForm);
     }
