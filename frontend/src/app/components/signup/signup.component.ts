@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import validateForm from '../../helpers/validatorForm';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 
 
 @Component({
@@ -20,7 +21,11 @@ export class SignupComponent implements OnInit {
 
   signUpForm!: FormGroup;
 
-  constructor(private router: Router, private fb: FormBuilder, private authService: AuthService) { }
+  constructor(
+    private router: Router,
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private notifyService: NotificationService) { }
   
   ngOnInit(): void {
     this.signUpForm = this.fb.group({
@@ -48,12 +53,12 @@ export class SignupComponent implements OnInit {
       // console.log(this.signUpForm.value);
       this.authService.signUp(this.signUpForm.value).subscribe({
         next: (response) => {
-          alert(response.message);
+          this.notifyService.showSuccess(response.message);
           this.signUpForm.reset();
           this.router.navigateByUrl('login');
         },
         error: (err) => {
-          alert(err?.error?.message);
+          this.notifyService.showError(err?.error?.message);
         }
       });
     } else {

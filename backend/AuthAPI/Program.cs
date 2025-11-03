@@ -1,6 +1,9 @@
+using System.Text;
 using AuthAPI.Data;
 using AuthAPI.Mappers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +25,21 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(config =>
+    {
+        config.SaveToken = true;
+        config.RequireHttpsMetadata = false;
+
+        config.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = false,
+            ValidateIssuer = false,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Jwt").GetSection("SigningKey").Value!))
+        };
+    });
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -39,11 +57,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
 app.UseHttpsRedirection();
 
 app.UseCors("DefaultPolicy");
+
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();

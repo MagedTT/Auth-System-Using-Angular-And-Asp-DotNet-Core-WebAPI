@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterLink } from "@angular/router";
 import ValidateForm from '../../helpers/validatorForm';
 import { AuthService } from '../../services/auth.service';
+import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-login',
@@ -20,7 +22,11 @@ export class LoginComponent implements OnInit {
   passwordInputType: string = 'password';
   loginForm!: FormGroup;
 
-  constructor(private router: Router, private fb: FormBuilder, private authService: AuthService) { }
+  constructor(
+    private router: Router,
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private notifyService: NotificationService) { }
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
@@ -42,15 +48,15 @@ export class LoginComponent implements OnInit {
 
   onLogin() {
     if (this.loginForm.valid) {
-      // console.log(this.loginForm.value);
       this.authService.login(this.loginForm.value).subscribe({
         next: (response) => {
-          alert(response.message);
+          this.notifyService.showSuccess(response.message);
+          this.authService.setToken(response.token);
           this.loginForm.reset();
           this.router.navigateByUrl('dashboard');
         },
         error: (err) => {
-          alert(err?.error?.message);
+          this. notifyService.showError(err?.error?.message);
         }
       });
     } else {
